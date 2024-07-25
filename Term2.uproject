@@ -1,0 +1,22 @@
+{
+	"FileVersion": 3,
+	"EngineAssociation": "{4FD49FF7-4ECD-7483-97A1-FB8DBDAA23D7}",
+	"Category": "",
+	"Description": "",
+	"Modules": [
+		{
+			"Name": "Term2",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
+		}
+	],
+	"Plugins": [
+		{
+			"Name": "ModelingToolsEditorMode",
+			"Enabled": true,
+			"TargetAllowList": [
+				"Editor"
+			]
+		}
+	]
+}
