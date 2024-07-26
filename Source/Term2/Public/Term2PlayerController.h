@@ -13,8 +13,15 @@ UCLASS()
 class TERM2_API ATerm2PlayerController : public APlayerController
 {
 	GENERATED_BODY()
-	
-	
-	
+
+//public:
+	//ATerm2PlayerController();
+
+//protected:
+
+	//virtual void BeginPlay() override;
+
+	//UFUNCTION()
+	//void OnJumpAction();
 	
 };
