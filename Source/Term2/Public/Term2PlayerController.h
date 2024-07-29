@@ -14,14 +14,32 @@ class TERM2_API ATerm2PlayerController : public APlayerController
 {
 	GENERATED_BODY()
 
-//public:
-	//ATerm2PlayerController();
+protected:
 
-//protected:
+	void SetupInputComponent() override;
 
-	//virtual void BeginPlay() override;
+	void RequestMoveForward(float AxisValue);
+	void RequestMoveRight(float AxisValue);
+	void RequestLookUp(float AxisValue);
+	void RequestLookRight(float AxisValue);
+	void RequestJump();
+	void RequestJumpStop();
 
-	//UFUNCTION()
-	//void OnJumpAction();
+	void RequestCrouchStart();
+	void RequestCrouchEnd();
+
+	void RequestSprintStart();
+	void RequestSprintEnd();
+
+	//Base Look Up
+	UPROPERTY(EditAnywhere, Category = "Look")
+	float BaseLookUpRate = 90.0f;
+
+	//Base Look Right
+	UPROPERTY(EditAnywhere, Category = "Look")
+	float BaseLookRightRate = 90.0f;
+
+	UPROPERTY(EditAnywhere, Category = "Movement")
+	float SprintSpeed = 1200.0f;
 	
 };
