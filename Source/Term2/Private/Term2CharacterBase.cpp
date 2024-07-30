@@ -2,6 +2,9 @@
 
 
 #include "Term2CharacterBase.h"
+#include "Math/UnrealMathUtility.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "Term2PlayerController.h"
 
 
 // Sets default values
@@ -23,7 +26,14 @@ void ATerm2CharacterBase::BeginPlay()
 void ATerm2CharacterBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
+	if (bIsStunned)
+	{
+		bIsStunned = (FApp::GetCurrentTime() - StunBeginTimestamp) < StunTime;
+		if (!bIsStunned)
+		{
+			OnStunEnd();
+		}
+	}
 }
 
 // Called to bind functionality to input
@@ -31,5 +41,58 @@ void ATerm2CharacterBase::SetupPlayerInputComponent(UInputComponent* PlayerInput
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
+}
+
+void ATerm2CharacterBase::Landed(const FHitResult& Hit)
+{
+	Super::Landed(Hit);
+
+	//custom landed code
+	ATerm2PlayerController* Term2PlayerController = GetController<ATerm2PlayerController>();
+	if (Term2PlayerController)
+	{
+		const float FallImpactSpeed = FMath::Abs(GetVelocity().Z);
+		if (FallImpactSpeed < MinImpactSpeed)
+		{
+			//nothing to do, light fall
+			return;
+		}
+
+		const float DeltaImpact = MaxImpactSpeed - MinImpactSpeed;
+		const float FallRatio = FMath::Clamp(FallImpactSpeed - MinImpactSpeed) / DeltaImpact, 0.0f, 1.0f);
+		
+		Term2PlayerController->PlayDynamicForceFeedback(FallRatio, 0.5f, bAffectLarge, bAffectSmall, bAffectLarge, bAffectSmall);
+		if (bAffectLarge)
+		{
+			OnStunBegin(FallRatio);
+		}
+		
+	}
+}
+
+void ATerm2CharacterBase::RequestSprintStart()
+{
+	if (!bIsStunned)
+	{
+		GetCharacterMovement()->MaxWalkSpeed = SprintSpeed;
+	}
+
+}
+
+void ATerm2CharacterBase::RequestSprintEnd()
+{
+	GetCharacterMovement()->MaxWalkSpeed = MaxWalkSpeed;
+}
+
+void ATerm2CharacterBase::OnStunBegin(float StunRatio)
+{
+	if (bIsStunned)
+	{
+		//for now just early exit, alternative is to add to the stun time
+		return;
+	}
+
+	const float StunDelt = MaxStunTime - MinStunTime;
+	StunTime = MinStunTime + (StunRatio * StunDelt);
 }
 

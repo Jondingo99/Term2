@@ -4,6 +4,7 @@
 #include "Term2PlayerController.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Term2CharacterBase.h"
 
 void ATerm2PlayerController::SetupInputComponent()
 {
@@ -90,16 +91,16 @@ void ATerm2PlayerController::RequestCrouchEnd()
 
 void ATerm2PlayerController::RequestSprintStart()
 {
-	if (GetCharacter())
+	if (ATerm2CharacterBase* Term2CharacterBase = Cast<ATerm2CharacterBase>(GetCharacter()))
 	{
-		GetCharacter()->GetCharacterMovement()->MaxWalkSpeed += SprintSpeed;
+		Term2CharacterBase->RequestSprintStart();
 	}
 }
 
 void ATerm2PlayerController::RequestSprintEnd()
 {
-	if (GetCharacter())
+	if (ATerm2CharacterBase* Term2CharacterBase = Cast<ATerm2CharacterBase>(GetCharacter()))
 	{
-		GetCharacter()->GetCharacterMovement()->MaxWalkSpeed -= SprintSpeed;
+		Term2CharacterBase->RequestSprintEnd();
 	}
 }
