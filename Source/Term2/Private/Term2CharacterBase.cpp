@@ -54,19 +54,15 @@ void ATerm2CharacterBase::Landed(const FHitResult& Hit)
 		const float FallImpactSpeed = FMath::Abs(GetVelocity().Z);
 		if (FallImpactSpeed < MinImpactSpeed)
 		{
-			//nothing to do, light fall
+			//nothing
 			return;
 		}
-
+		
 		const float DeltaImpact = MaxImpactSpeed - MinImpactSpeed;
-		const float FallRatio = FMath::Clamp(FallImpactSpeed - MinImpactSpeed) / DeltaImpact, 0.0f, 1.0f);
-		
-		Term2PlayerController->PlayDynamicForceFeedback(FallRatio, 0.5f, bAffectLarge, bAffectSmall, bAffectLarge, bAffectSmall);
-		if (bAffectLarge)
-		{
-			OnStunBegin(FallRatio);
-		}
-		
+		const float FallRatio = FMath::Clamp((FallImpactSpeed - MinImpactSpeed) / DeltaImpact, 0.0f, 1.0f);
+		const bool bAffectSmall = FallRatio <= 0.5;
+		const bool bAffectLarge = FallRatio > 0.5;
+		Term2PlayerController->PlayDynamicForceFeedback(FallRatio,0.5f, bAffectLarge, bAffectSmall, bAffectLarge, bAffectSmall);
 	}
 }
 
@@ -94,5 +90,6 @@ void ATerm2CharacterBase::OnStunBegin(float StunRatio)
 
 	const float StunDelt = MaxStunTime - MinStunTime;
 	StunTime = MinStunTime + (StunRatio * StunDelt);
+	StunBeginTimestamp = FMath::GetCurrentTime();
 }
 

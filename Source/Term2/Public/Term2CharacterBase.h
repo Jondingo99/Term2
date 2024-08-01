@@ -41,6 +41,9 @@ public:
 
 	virtual void Landed(const FHitResult& Hit) override;
 
+	void RequestSprintStart();
+	void RequestSprintEnd();
+
 	float StunTime = 0.0f;
 	float StunBeginTimestamp = 0.0f;
 
@@ -48,6 +51,7 @@ public:
 	bool bIsSprinting = false;
 
 	float MaxWalkSpeed = 0.0f;
+	float SprintSpeed = 200.0f;
 
 	void OnStunBegin(float StunRatio);
 	void OnStunEnd();
