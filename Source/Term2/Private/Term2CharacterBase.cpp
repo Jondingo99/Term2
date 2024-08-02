@@ -90,6 +90,10 @@ void ATerm2CharacterBase::OnStunBegin(float StunRatio)
 
 	const float StunDelt = MaxStunTime - MinStunTime;
 	StunTime = MinStunTime + (StunRatio * StunDelt);
-	StunBeginTimestamp = FMath::GetCurrentTime();
+	StunBeginTimestamp = FApp::GetCurrentTime();
+}
+
+void ATerm2CharacterBase::OnStunEnd()
+{
 }
 

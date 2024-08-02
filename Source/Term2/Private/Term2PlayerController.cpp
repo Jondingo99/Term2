@@ -42,7 +42,7 @@ void ATerm2PlayerController::RequestMoveRight(float AxisValue)
 	{
 		FRotator const ControlSpaceRot = GetControlRotation();
 		//transform world space and add it
-		GetPawn()->AddMovementInput(FRotationMatrix(ControlSpaceRot).GetScaledAxis(EAxis::X), AxisValue);
+		GetPawn()->AddMovementInput(FRotationMatrix(ControlSpaceRot).GetScaledAxis(EAxis::Y), AxisValue);
 	}
 }
 

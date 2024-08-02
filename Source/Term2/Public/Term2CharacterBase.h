@@ -51,7 +51,7 @@ public:
 	bool bIsSprinting = false;
 
 	float MaxWalkSpeed = 0.0f;
-	float SprintSpeed = 200.0f;
+	float SprintSpeed;
 
 	void OnStunBegin(float StunRatio);
 	void OnStunEnd();
