@@ -4,15 +4,19 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
+#include "Sound/SoundCue.h"
 #include "Term2PlayerController.generated.h"
 
-/**
- * 
- */
+class ATerm2GameModeBase;
+class UUserWidget;
+
 UCLASS()
 class TERM2_API ATerm2PlayerController : public APlayerController
 {
 	GENERATED_BODY()
+public:
+
+	virtual void BeginPlay() override;
 
 protected:
 
@@ -22,6 +26,8 @@ protected:
 	void RequestMoveRight(float AxisValue);
 	void RequestLookUp(float AxisValue);
 	void RequestLookRight(float AxisValue);
+	void RequestThrowObject(float AxisValue);
+
 	void RequestJump();
 	void RequestJumpStop();
 
@@ -30,6 +36,12 @@ protected:
 
 	void RequestSprintStart();
 	void RequestSprintEnd();
+
+	UPROPERTY(EditAnywhere, Category = "HUD")
+	TSubclassOf<class UUserWidget> HUDClass;
+
+	UPROPERTY()
+	UUserWidget* HUDWidget;
 
 	//Base Look Up
 	UPROPERTY(EditAnywhere, Category = "Look")
@@ -41,5 +53,15 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "Movement")
 	float SprintSpeed = 1200.0f;
+
+	UPROPERTY(EditAnywhere, Category = "Sound")
+	USoundCue* JumpSound = nullptr;
+
+	ATerm2GameModeBase* GameModeRef;
+
+	float LastAxis = 0.0f;
+
+	UPROPERTY(EditAnywhere, Category = "Input")
+	float FlickThreshold = 0.75f;
 	
 };

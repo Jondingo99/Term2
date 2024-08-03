@@ -19,10 +19,15 @@ void ATerm2PlayerController::SetupInputComponent()
 		InputComponent->BindAction(TEXT("Sprint"), EInputEvent::IE_Pressed, this, &ATerm2PlayerController::RequestSprintStart);
 		InputComponent->BindAction(TEXT("Sprint"), EInputEvent::IE_Released, this, &ATerm2PlayerController::RequestSprintEnd);
 
+		InputComponent->BindAction(TEXT("PullObject"), EInputEvent::IE_Released, this, &ATerm2PlayerController::RequestPullObject);
+		InputComponent->BindAction(TEXT("PullObject"), EInputEvent::IE_Released, this, &ATerm2PlayerController::RequestStopPullObject);
+
+
 		InputComponent->BindAxis(TEXT("MoveForward"), this, &ATerm2PlayerController::RequestMoveForward);
 		InputComponent->BindAxis(TEXT("MoveRight"), this, &ATerm2PlayerController::RequestMoveRight);
 		InputComponent->BindAxis(TEXT("LookUp"), this, &ATerm2PlayerController::RequestLookUp);
 		InputComponent->BindAxis(TEXT("LookRight"), this, &ATerm2PlayerController::RequestLookRight);
+		InputComponent->BindAxis(TEXT("ThrowObjectGP"), this, &ATerm2PlayerController::RequestThrowObject);
 	}
 }
 
@@ -102,5 +107,51 @@ void ATerm2PlayerController::RequestSprintEnd()
 	if (ATerm2CharacterBase* Term2CharacterBase = Cast<ATerm2CharacterBase>(GetCharacter()))
 	{
 		Term2CharacterBase->RequestSprintEnd();
+	}
+}
+
+void ATerm2PlayerController::RequestThrowObject(float AxisValue)
+{
+	if (ATerm2CharacterBase* Term2CharacterBase = Cast<ATerm2CharacterBase>(GetCharacter()))
+	{
+		if (Term2CharacterBase->CanThrowObject())
+		{
+			float currentDelta = AxisValue - LastAxis;
+
+			//debug
+			if (CVarDisplayLaunchInputDelta->GetBool())
+			{
+				if (fabs(currentDelta) > 0.0f)
+				{
+					UE_LOG(LogTemp, Warning, TEXT("Axis: %f LastAxis: %f currentDelta: %f"), AxisValue, LastAxis);
+				}
+			}
+			LastAxis = AxisValue;
+			const bool IsFlick = fabs(currentDelta) > FlickThreshold;
+			if (IsFlick)
+			{
+				Term2CharacterBase->RequestThrowObject();
+			}
+		}
+		else
+		{
+			LastAxis = 0.0f;
+		}
+	}
+}
+
+void ATerm2PlayerController::RequestPullObject()
+{
+	if (ATerm2CharacterBase* Term2CharacterBase = Cast<ATerm2CharacterBase>(GetCharacter()))
+	{
+		Term2CharacterBase->RequestPullObject();
+	}
+}
+
+void ATerm2PlayerController::RequestStopPullObject()
+{
+	if (ATerm2CharacterBase* Term2CharacterBase = Cast<ATerm2CharacterBase>(GetCharacter()))
+	{
+		Term2CharacterBase->RequestStopPullObject();
 	}
 }
