@@ -4,9 +4,12 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "ThrowableActor.h"
 #include "Term2CharacterBase.generated.h"
 
 class AThrowableActor;
+
 
 UENUM(BlueprintType)
 enum class ECharacterThrowState : uint8
@@ -53,21 +56,39 @@ public:
 	UFUNCTION(BlueprintPure)
 	ECharacterThrowState GetCharacterThrowState() const { return CharacterThrowState; }
 
-	float StunTime = 0.0f;
-	float StunBeginTimestamp = 0.0f;
+	UFUNCTION(BlueprintPure)
+	bool IsStunned() const { return bIsStunned; }
 
-	bool bIsStunned = false;
-	bool bIsSprinting = false;
-
-	float MaxWalkSpeed = 0.0f;
 	float SprintSpeed;
 
-	void OnStunBegin(float StunRatio);
-	void OnStunEnd();
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+	void SphereCastPlayerView();
+	void SphereCastActorTransform();
+	void LineCastActorTransform();
+	void ProcessTraceResult(const FHitResult& HitResult);
+
+	bool PlayThrowMontage();
+	void UnbindMontage();
+
+	UFUNCTION()
+	void OnMontageBlendingOut(UAnimMontage* Montage, bool bInterrupted);
+
+	UFUNCTION()
+	void OnMontageEnded(UAnimMontage* Montage, bool bInterrupted);
+
+	UFUNCTION()
+	void OnNotifyBeginReceived(FName NotifyName, const FBranchingPointNotifyPayload& BranchingPointNotifyPayload);
+
+	UFUNCTION()
+	void OnNotifyEndReceived(FName NotifyName, const FBranchingPointNotifyPayload& BranchingPointNotifyPayload);
+
+	void OnStunBegin(float StunRatio);
+	void UpdateStun();
+	void OnStunEnd();
 
 	UPROPERTY(EditAnywhere, Category = "Fall Impact")
 	float MinImpactSpeed = 100.0f;
@@ -82,6 +103,33 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Fall Impact")
 	float MaxStunTime = 1.0f;
 
+	UPROPERTY(VisibleAnywhere, Category = "Throw")
+	ECharacterThrowState CharacterThrowState = ECharacterThrowState::None;
+
+	UPROPERTY(EditAnywhere, Category = "Throw", meta = (ClampMin = "0.0", Unit = "ms"))
+	float ThrowSpeed = 2000.0f;
+
+	float StunTime = 0.0f;
+	float StunBeginTimestamp = 0.0f;
+
+	bool bIsStunned = false;
+	bool bIsSprinting = false;
+
+	float MaxWalkSpeed = 0.0f;
+
+	//replace booleans with an enum 
+	/*bool bIsLoaded = false;
+	bool bIsPullingObject = false;
+	bool bIsThrowingObject = false;*/
+
+	UPROPERTY(EditAnywhere, Category = "Animation")
+	UAnimMontage* ThrowMontage = nullptr;
+
+	FOnMontageBlendingOutStarted BlendingOutDelegate;
+	FOnMontageEnded MontageEndedDelegate;
+
+private:
+	AThrowableActor* ThrowableActor;
 
 	
 };

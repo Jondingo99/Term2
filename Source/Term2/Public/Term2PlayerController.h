@@ -37,6 +37,9 @@ protected:
 	void RequestSprintStart();
 	void RequestSprintEnd();
 
+	void RequestPullObject();
+	void RequestStopPullObject();
+
 	UPROPERTY(EditAnywhere, Category = "HUD")
 	TSubclassOf<class UUserWidget> HUDClass;
 

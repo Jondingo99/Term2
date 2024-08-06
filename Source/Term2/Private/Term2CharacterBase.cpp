@@ -176,6 +176,7 @@ void ATerm2CharacterBase::RequestStopPullObject()
 	if (CharacterThrowState == ECharacterThrowState::RequestingPull)
 	{
 		CharacterThrowState = ECharacterThrowState::None;
+		//ResetThrowableObject();
 	}
 }
 
@@ -247,3 +248,70 @@ void ATerm2CharacterBase::OnStunEnd()
 {
 }
 
+bool ATerm2CharacterBase::PlayThrowMontage()
+{
+	const float PlayRate = 1.0f;
+	bool bPlayedSuccessfully = PlayAnimMontage(ThrowMontage, PlayRate) > 0.f;
+	if (bPlayedSuccessfully)
+	{
+		UAnimInstace* AnimInstance = GetMesh()->GetAnimInstance();
+
+		if (!BlendingOutDelegate.IsBound())
+		{
+			BlendingOutDelegate.BindObject(this, &ATerm2CharacterBase::OnMontageBlendingOut);
+		}
+		AnimInstance->Montage_SetBlendingOutDelegate(BlendingOutDelegate, ThrowMontage);
+
+		if (!MontageEndedDelegate.IsBound())
+		{
+			MontageEndedDelegate.BindUObject(this, &ATerm2CharacterBase::OnMontageEnded);
+		}
+		AnimInstance->Montage_SetEndDelegate(MontageEndedDelegate, ThrowMontage);
+
+		AnimInstance->OnPlayMontageNotifyBegin.AddDynamic(this, &ATerm2CharacterBase::OnNotifyBeginReceived);
+		AnimInstance->OnPlayMontageNotifyEnd.AddDynamic(this, &ATerm2CharacterBase::OnNotifyEndReceived);
+	}
+}
+
+void ATerm2CharacterBase::OnMontageBlendingOut(UAnimMontage* Montage, bool bInterrupted)
+{
+
+}
+
+void ATerm2CharacterBase::OnMontageEnded(UAnimMontage* Montage, bool bInterrupted)
+{
+	UnbindMontage();
+	CharacterThrowState = ECharacterThrowState::None;
+	MoveIgnoreActorRemove(ThrowableActor);
+	if (ThrowableActor->GetRootComponent())
+	{
+		UPrimitiveComponent* RootPrimitiveComponent = Cast<UPrimitiveComponent>(ThrowableActor->GetRootComponent());
+		if (RootPrimitiveComponent)
+		{
+			RootPrimitiveComponent->IgnoreActorWhenMoving(this, false);
+		}
+	}
+	ThrowableActor = nullptr;
+}
+
+void ATerm2CharacterBase::OnNotifyBeginReceived(FName NotifyName, const FBranchingPointNotifyPayload& BranchingPointNotifyPayload)
+{
+	//ignore collisions
+	if (ThrowableActor->GetRootComponent())
+	{
+		UPrimitiveComponent* RootPrimitiveComponent = Cast<UPrimitiveComponent>(ThrowableActor->GetRootComponent());
+		if (RootPrimitiveComponent)
+		{
+			RootPrimitiveComponent->IgnoreActorWhenMoving(this, true);
+		}
+	}
+	//const FVector& Direction = GetMesh()->GetSocketRotation(TEXT("ObjectAttach")).Vector() * -ThrowSpeed;
+	const FVector& Direction = GetActorForwardVector() * ThrowSpeed;
+	ThrowableActor->Launch(Direction);
+
+	if (CVarDisplayThrowVelocity->GetBool())
+	{
+		const FVector& Start = GetMesh()->GetSocketLocation(TEXT("ObjectAttach"));
+		DrawDebugLine(GetWorld(), Start, Start + Direction, FColor::Red, false, 5.0f);
+	}
+}

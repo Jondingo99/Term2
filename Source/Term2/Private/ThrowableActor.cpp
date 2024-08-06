@@ -64,6 +64,14 @@ void AThrowableActor::NotifyHit(UPrimitiveComponent* MyComp, AActor* Other, UPri
 	PullActor = nullptr;
 }
 
+void AThrowableActor::ProjectileStop(const FHitResult& ImpactResult)
+{
+	if (State == EState::Launch || State == EState::Dropped)
+	{
+		State = EState::Idle;
+	}
+}
+
 // Called every frame
 //void AThrowableActor::Tick(float DeltaTime)
 //{
@@ -136,5 +144,20 @@ bool AThrowableActor::SetHomingTarget(AActor* Target)
 	}
 
 	return false;
+}
+
+void AThrowableActor::Drop()
+{
+	if (State == EState::Pull || State == EState::Attached)
+	{
+		if (State == EState::Attached)
+		{
+			DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+		}
+
+		ProjectileMovementComponent->Activate(true);
+		ProjectileMovementComponent->HomingTargetComponent = nullptr;
+		State = EState::Dropped;
+	}
 }
 
