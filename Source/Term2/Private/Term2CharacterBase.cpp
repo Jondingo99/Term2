@@ -77,7 +77,7 @@ void ATerm2CharacterBase::Tick(float DeltaTime)
 		}
 	}
 
-	else if (CharacterThrowState == ECharacterThrowState::None || CharacterThrowState == ECharacterThrowState::RequestPull)
+	else if (CharacterThrowState == ECharacterThrowState::None || CharacterThrowState == ECharacterThrowState::RequestingPull)
 	{
 		switch (CVarTraceMode->GetInt())
 		{
@@ -198,38 +198,62 @@ void ATerm2CharacterBase::OnThrowableAttached(AThrowableActor* InThrowableActor)
 	MoveIgnoreActorAdd(ThrowableActor);
 }
 
-//void ATerm2CharacterBase::SphereCastPlayerView()
-//{
-//	FVector Location;
-//	FRotator Rotation;
-//	GetController()->GetPlayerViewPoint(Location, Rotation);
-//	const FVector PlayerViewForward = Rotation.Vector();
-//	const float AdditionalDistance = (Location - GetActorLocation()).Size();
-//	FVector EndPos = Location + (PlayerViewForward * (1000.0f + AdditionalDistance));
-//
-//	const FVector CharacterFoward = GetActorForwardVector();
-//	const float DonResult = FVector::DotProduct(PlayerViewForward, CharacterForward);
-//	//prevent picking up objects behind us
-//	if (DotResult < -0.23f)
-//	{
-//		if (ThrowableActor)
-//		{
-//			ThrowableActor->ToggleHighlight(false);
-//			ThrowableActor = nullptr;
-//		}
-//		return;
-//		//UE_LOG(LogTemp, Warning, TEXT("Dot Result: %f"), DotResult);
-//	}
-//
-//
-//	FHitResult HitResult;
-//	EDrawDebugTrace::Type DebugTrace = CVarDisplayTrace->GetBool() ? EDrawDebugTrace::ForOneFrame : EDrawDebugTrace::None;
-//	TArray<AActor*> ActorsToIgnore;
-//	ActorsToIgnore.Add(this);
-//
-//	UKismetSystemLibrary::SphereTraceSingle(GetWorld(), Location, EndPos, 70.0f, UEngineTypes::ConvertToTraceType(ECollisionChannel::ECC_Visibility);
-//	ProcessTraceResult(HitResult);
-//}
+void ATerm2CharacterBase::SphereCastPlayerView()
+{
+	FVector Location;
+	FRotator Rotation;
+	GetController()->GetPlayerViewPoint(Location, Rotation);
+	const FVector PlayerViewForward = Rotation.Vector();
+	const float AdditionalDistance = (Location - GetActorLocation()).Size();
+	FVector EndPos = Location + (PlayerViewForward * (1000.0f + AdditionalDistance));
+
+	const FVector CharacterFoward = GetActorForwardVector();
+	const float DotResult = FVector::DotProduct(PlayerViewForward, CharacterForward);
+	//prevent picking up objects behind us
+	if (DotResult < -0.23f)
+	{
+		if (ThrowableActor)
+		{
+			ThrowableActor->ToggleHighlight(false);
+			ThrowableActor = nullptr;
+		}
+		return;
+		//UE_LOG(LogTemp, Warning, TEXT("Dot Result: %f"), DotResult);
+	}
+
+
+	FHitResult HitResult;
+	EDrawDebugTrace::Type DebugTrace = CVarDisplayTrace->GetBool() ? EDrawDebugTrace::ForOneFrame : EDrawDebugTrace::None;
+	TArray<AActor*> ActorsToIgnore;
+	ActorsToIgnore.Add(this);
+
+	UKismetSystemLibrary::SphereTraceSingle(GetWorld(), Location, EndPos, 70.0f, UEngineTypes::ConvertToTraceType(ECollisionChannel::ECC_Visibility),
+	ProcessTraceResult(HitResult);
+
+#if ENABLE_DRAW_DEBUG
+	if (CVarDisplay->GetBool())
+	{
+		static float FovDeg = 90.0f;
+		DrawDebugCamera(GetWorld(), Location, Rotation, FovDeg);
+		DrawDebugLine(GetWorld(), Location, EndPos, HitResult.bBlockingHit ? FColor::Red : FColor::White);
+		DrawDebugPoint(GetWorld(), EndPos, 70.0f, HitResult.bBlockingHit ? FColor::Red : FColor::White);
+	}
+#endif
+
+}
+
+void SphereCastActorTransform()
+{
+	FVector StartPos = GetActorLocation();
+	FVector EndPos = StartPos + (GetActorForwardVector() * 1000.0f);
+
+	//sphere trace
+	EDrawDebugTrace::Type DebugTrace = CVarDisplayTrace->GetBool() ? EDrawDebugTrace::ForOneFrame : EDrawDebugTrace::None;
+	FHitResult HitResult;
+	UKismetSystemLibrary::SphereTraceSingle(GetWorld(), StartPos, EndPos, 70.0f, UEngineTypes::ConvertToTraceType(ECollisionChannel::ECC_Visibility),
+	ProcessTraceResult(HitResult);
+
+}
 
 void ATerm2CharacterBase::OnStunBegin(float StunRatio)
 {
@@ -254,7 +278,7 @@ bool ATerm2CharacterBase::PlayThrowMontage()
 	bool bPlayedSuccessfully = PlayAnimMontage(ThrowMontage, PlayRate) > 0.f;
 	if (bPlayedSuccessfully)
 	{
-		UAnimInstace* AnimInstance = GetMesh()->GetAnimInstance();
+		UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 
 		if (!BlendingOutDelegate.IsBound())
 		{
@@ -313,5 +337,59 @@ void ATerm2CharacterBase::OnNotifyBeginReceived(FName NotifyName, const FBranchi
 	{
 		const FVector& Start = GetMesh()->GetSocketLocation(TEXT("ObjectAttach"));
 		DrawDebugLine(GetWorld(), Start, Start + Direction, FColor::Red, false, 5.0f);
+	}
+}
+
+void ATerm2CharacterBase::LineCastActorTransform()
+{
+	FVector StartPos = GetActorLocation();
+	FVector EndPos = StartPos + (GetActorForwardVector() * 1000.0f);
+	FHitResult HitResult;
+	GetWorld() ? GetWorld()->LineTraceSingleByChannel(HitResult, StartPos, EndPos, ECollisionChannel::ECC_Visibility) : false;
+#if ENABLE_DRAW_DEBUG
+	if (CVarDisplayTrace->GetBool())
+	{
+		DrawDebugLine(GetWorld(), StartPos, EndPos, HitResult.bBlockingHit ? FColor::Red : FColor::White, false);
+	}
+#endif // ENABLE_DRAW_DEBUG
+	ProcessTraceResult(HitResult);
+}
+
+void ATerm2CharacterBase::ProcessTraceResult(const FHitResult& HitResult)
+{
+	//check if there was an existing throwable actor
+	AThrowableActor* HitThrowableActor = HitResult.bBlockingHit ? Cast<AThrowableActor>(HitResult.GetActor()) : nullptr;
+	const bool IsSameActor = (ThrowableActor == HitThrowableActor);
+	const bool IsValidTarget = HitThrowableActor && HitThrowableActor->IsIdle();
+
+	if (ThrowableActor)
+	{
+		if (!IsValidTarget || !IsSameActor)
+		{
+			ThrowableActor->ToggleHighlight(false);
+			ThrowableActor = nullptr;
+		}
+	}
+
+	if (IsValidTarget)
+	{
+		if (!ThrowableActor)
+		{
+			ThrowableActor = HitThrowableActor;
+			ThrowableActor->ToggleHighlight(true);
+		}
+	}
+
+	if (CharacterThrowState == ECharacterThrowState::RequestingPull)
+	{
+		//don't allow for pulling objects while running/jogging
+		if (GetVelocity().SizeSquared() < 100.0f)
+		{
+			if (ThrowableActor && ThrowableActor->Pull(this))
+			{
+				CharacterThrowState = ECharacterThrowState::Pulling;
+				ThrowableActor = nullptr;
+			}
+		}
 	}
 }
