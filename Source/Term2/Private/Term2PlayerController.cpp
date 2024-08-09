@@ -6,6 +6,10 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Term2CharacterBase.h"
 
+void ATerm2PlayerController::BeginPlay()
+{
+}
+
 void ATerm2PlayerController::SetupInputComponent()
 {
 	Super::SetupInputComponent();
@@ -118,14 +122,15 @@ void ATerm2PlayerController::RequestThrowObject(float AxisValue)
 		{
 			float currentDelta = AxisValue - LastAxis;
 
-			//debug
-			if (CVarDisplayLaunchInputDelta->GetBool())
-			{
-				if (fabs(currentDelta) > 0.0f)
-				{
-					UE_LOG(LogTemp, Warning, TEXT("Axis: %f LastAxis: %f currentDelta: %f"), AxisValue, LastAxis);
-				}
-			}
+			// Investigate the CVar declaration, it's probably at the top of this file (if the video ever shows that... if not check the master repo, or refer to Abstraction (Term 1 project))
+			////debug
+			//if (CVarDisplayLaunchInputDelta->GetBool())
+			//{
+			//	if (fabs(currentDelta) > 0.0f)
+			//	{
+			//		UE_LOG(LogTemp, Warning, TEXT("Axis: %f LastAxis: %f currentDelta: %f"), AxisValue, LastAxis, currentDelta);
+			//	}
+			//}
 			LastAxis = AxisValue;
 			const bool IsFlick = fabs(currentDelta) > FlickThreshold;
 			if (IsFlick)

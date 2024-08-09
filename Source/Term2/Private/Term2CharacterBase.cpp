@@ -207,7 +207,7 @@ void ATerm2CharacterBase::SphereCastPlayerView()
 	const float AdditionalDistance = (Location - GetActorLocation()).Size();
 	FVector EndPos = Location + (PlayerViewForward * (1000.0f + AdditionalDistance));
 
-	const FVector CharacterFoward = GetActorForwardVector();
+	const FVector CharacterForward = GetActorForwardVector();
 	const float DotResult = FVector::DotProduct(PlayerViewForward, CharacterForward);
 	//prevent picking up objects behind us
 	if (DotResult < -0.23f)
@@ -227,22 +227,23 @@ void ATerm2CharacterBase::SphereCastPlayerView()
 	TArray<AActor*> ActorsToIgnore;
 	ActorsToIgnore.Add(this);
 
-	UKismetSystemLibrary::SphereTraceSingle(GetWorld(), Location, EndPos, 70.0f, UEngineTypes::ConvertToTraceType(ECollisionChannel::ECC_Visibility),
+	//static ENGINE_API bool SphereTraceSingle(const UObject * WorldContextObject, const FVector Start, const FVector End, float Radius, ETraceTypeQuery TraceChannel, bool bTraceComplex, const TArray<AActor*>&ActorsToIgnore, EDrawDebugTrace::Type DrawDebugType, FHitResult & OutHit, bool bIgnoreSelf, FLinearColor TraceColor = FLinearColor::Red, FLinearColor TraceHitColor = FLinearColor::Green, float DrawTime = 5.0f);
+	UKismetSystemLibrary::SphereTraceSingle(GetWorld(), Location, EndPos, 70.0f, UEngineTypes::ConvertToTraceType(ECollisionChannel::ECC_Visibility), true, ActorsToIgnore, EDrawDebugTrace::ForOneFrame, HitResult, true);
 	ProcessTraceResult(HitResult);
 
 #if ENABLE_DRAW_DEBUG
-	if (CVarDisplay->GetBool())
-	{
-		static float FovDeg = 90.0f;
-		DrawDebugCamera(GetWorld(), Location, Rotation, FovDeg);
-		DrawDebugLine(GetWorld(), Location, EndPos, HitResult.bBlockingHit ? FColor::Red : FColor::White);
-		DrawDebugPoint(GetWorld(), EndPos, 70.0f, HitResult.bBlockingHit ? FColor::Red : FColor::White);
-	}
+	//if (CVarDisplay->GetBool())
+	//{
+	//	static float FovDeg = 90.0f;
+	//	DrawDebugCamera(GetWorld(), Location, Rotation, FovDeg);
+	//	DrawDebugLine(GetWorld(), Location, EndPos, HitResult.bBlockingHit ? FColor::Red : FColor::White);
+	//	DrawDebugPoint(GetWorld(), EndPos, 70.0f, HitResult.bBlockingHit ? FColor::Red : FColor::White);
+	//}
 #endif
 
 }
 
-void SphereCastActorTransform()
+void ATerm2CharacterBase::SphereCastActorTransform()
 {
 	FVector StartPos = GetActorLocation();
 	FVector EndPos = StartPos + (GetActorForwardVector() * 1000.0f);
@@ -250,7 +251,9 @@ void SphereCastActorTransform()
 	//sphere trace
 	EDrawDebugTrace::Type DebugTrace = CVarDisplayTrace->GetBool() ? EDrawDebugTrace::ForOneFrame : EDrawDebugTrace::None;
 	FHitResult HitResult;
-	UKismetSystemLibrary::SphereTraceSingle(GetWorld(), StartPos, EndPos, 70.0f, UEngineTypes::ConvertToTraceType(ECollisionChannel::ECC_Visibility),
+
+	TArray<AActor*> ActorsToIgnore;
+	UKismetSystemLibrary::SphereTraceSingle(GetWorld(), StartPos, EndPos, 70.0f, UEngineTypes::ConvertToTraceType(ECollisionChannel::ECC_Visibility), true, ActorsToIgnore, EDrawDebugTrace::ForOneFrame, HitResult, true);
 	ProcessTraceResult(HitResult);
 
 }
@@ -268,6 +271,10 @@ void ATerm2CharacterBase::OnStunBegin(float StunRatio)
 	StunBeginTimestamp = FApp::GetCurrentTime();
 }
 
+void ATerm2CharacterBase::UpdateStun()
+{
+}
+
 void ATerm2CharacterBase::OnStunEnd()
 {
 }
@@ -282,7 +289,7 @@ bool ATerm2CharacterBase::PlayThrowMontage()
 
 		if (!BlendingOutDelegate.IsBound())
 		{
-			BlendingOutDelegate.BindObject(this, &ATerm2CharacterBase::OnMontageBlendingOut);
+			BlendingOutDelegate.BindUObject(this, &ATerm2CharacterBase::OnMontageBlendingOut);
 		}
 		AnimInstance->Montage_SetBlendingOutDelegate(BlendingOutDelegate, ThrowMontage);
 
@@ -295,6 +302,11 @@ bool ATerm2CharacterBase::PlayThrowMontage()
 		AnimInstance->OnPlayMontageNotifyBegin.AddDynamic(this, &ATerm2CharacterBase::OnNotifyBeginReceived);
 		AnimInstance->OnPlayMontageNotifyEnd.AddDynamic(this, &ATerm2CharacterBase::OnNotifyEndReceived);
 	}
+	return bPlayedSuccessfully;
+}
+
+void ATerm2CharacterBase::UnbindMontage()
+{
 }
 
 void ATerm2CharacterBase::OnMontageBlendingOut(UAnimMontage* Montage, bool bInterrupted)
@@ -338,6 +350,10 @@ void ATerm2CharacterBase::OnNotifyBeginReceived(FName NotifyName, const FBranchi
 		const FVector& Start = GetMesh()->GetSocketLocation(TEXT("ObjectAttach"));
 		DrawDebugLine(GetWorld(), Start, Start + Direction, FColor::Red, false, 5.0f);
 	}
+}
+
+void ATerm2CharacterBase::OnNotifyEndReceived(FName NotifyName, const FBranchingPointNotifyPayload& BranchingPointNotifyPayload)
+{
 }
 
 void ATerm2CharacterBase::LineCastActorTransform()

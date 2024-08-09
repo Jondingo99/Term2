@@ -40,11 +40,11 @@ protected:
 	void RequestPullObject();
 	void RequestStopPullObject();
 
-	UPROPERTY(EditAnywhere, Category = "HUD")
-	TSubclassOf<class UUserWidget> HUDClass;
+	//UPROPERTY(EditAnywhere, Category = "HUD")
+	//TSubclassOf<UUserWidget> HUDClass;
 
-	UPROPERTY()
-	UUserWidget* HUDWidget;
+	//UPROPERTY(EditAnywhere)
+	//UUserWidget* HUDWidget;
 
 	//Base Look Up
 	UPROPERTY(EditAnywhere, Category = "Look")
