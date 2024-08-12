@@ -3,6 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
+
+#include "Term2GameWidget.h"
 #include "GameFramework/GameModeBase.h"
 #include "Term2GameModeBase.generated.h"
 
@@ -32,7 +34,9 @@ public:
 
 	virtual void BeginPlay() override;
 
-	EGameState GetCurrentGameState();
+	UFUNCTION(BlueprintCallable)
+	EGameState GetCurrentGameState() const;
+
 	void PlayerReachedEnd();
 
 private:
@@ -40,15 +44,21 @@ private:
 	// VARS
 
 	// Create and set CurrentGameState to NONE. This will be tracked in the code file.
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="States", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, Category="States")
 	EGameState CurrentGameState = EGameState::NONE;
 	//Countdown before gameplay
 	UPROPERTY(EditAnywhere, Category="Game Details")
 	float GameCountdownDuration = 4.0f;
 
 	FTimerHandle TimerHandle;
-	
-	//Return to add widget details
+
+	UPROPERTY()
+	UTerm2GameWidget* GameWidget; //object we'll be creating and adding to viewport
+
+	UPROPERTY(EditAnywhere, Category="Widget")
+	TSubclassOf<UTerm2GameWidget> GameWidgetClass; //exposed class to check the type of widget
+
+	APlayerController* PC = nullptr;
 
 	//FUNCTIONS
 	

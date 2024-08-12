@@ -3,6 +3,8 @@
 
 #include "Term2GameModeBase.h"
 
+#include "Kismet/GameplayStatics.h"
+
 ATerm2GameModeBase::ATerm2GameModeBase()
 {
 
@@ -17,7 +19,7 @@ void ATerm2GameModeBase::BeginPlay()
 	GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &ATerm2GameModeBase::StartGame, GameCountdownDuration, false);
 }
 
-EGameState ATerm2GameModeBase::GetCurrentGameState()
+EGameState ATerm2GameModeBase::GetCurrentGameState() const
 {
 	return CurrentGameState;
 }
@@ -25,20 +27,30 @@ EGameState ATerm2GameModeBase::GetCurrentGameState()
 void ATerm2GameModeBase::PlayerReachedEnd()
 {
 	CurrentGameState = EGameState::GameOver;
-	//To do - Return to update widget
-
-	//To do - Return to control PlayerController Input State
+	
+	GameWidget->LevelComplete();
+	FInputModeUIOnly InputMode;
+	PC->SetInputMode(InputMode);
+	PC->SetShowMouseCursor(true);
 
 }
 
 void ATerm2GameModeBase::DisplayCountdown()
 {
-	//To do - Return and create, store, display widget
+	if (!GameWidgetClass) { return; }
+
+	PC = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+	GameWidget = CreateWidget<UTerm2GameWidget>(PC, GameWidgetClass);
+	GameWidget->AddToViewport();
+	GameWidget->StartCountdown(GameCountdownDuration, this);
 }
 
 void ATerm2GameModeBase::StartGame()
 {
 	CurrentGameState = EGameState::Playing;
+	FInputModeGameOnly InputMode;
+	PC->SetInputMode(InputMode);
+	PC->SetShowMouseCursor(false);
 }
 
 
