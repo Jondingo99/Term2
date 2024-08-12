@@ -4,10 +4,14 @@
 #include "Term2PlayerController.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Kismet/GameplayStatics.h"
 #include "Term2CharacterBase.h"
+#include "Term2GameModeBase.h"
 
 void ATerm2PlayerController::BeginPlay()
 {
+	Super::BeginPlay();
+	GameModeRef = Cast<ATerm2GameModeBase>(GetWorld()->GetAuthGameMode());
 }
 
 void ATerm2PlayerController::SetupInputComponent()
@@ -37,6 +41,7 @@ void ATerm2PlayerController::SetupInputComponent()
 
 void ATerm2PlayerController::RequestMoveForward(float AxisValue)
 {
+	if (!GameModeRef || GameModeRef->GetCurrentGameState() != EGameState::Playing) { return; }
 	if (AxisValue != 0.f)
 	{
 		FRotator const ControlSpaceRot = GetControlRotation();
@@ -47,6 +52,7 @@ void ATerm2PlayerController::RequestMoveForward(float AxisValue)
 
 void ATerm2PlayerController::RequestMoveRight(float AxisValue)
 {
+	if (!GameModeRef || GameModeRef->GetCurrentGameState() != EGameState::Playing) { return; }
 	if (AxisValue != 0.f)
 	{
 		FRotator const ControlSpaceRot = GetControlRotation();
@@ -67,6 +73,7 @@ void ATerm2PlayerController::RequestLookRight(float AxisValue)
 
 void ATerm2PlayerController::RequestJump()
 {
+	if (!GameModeRef || GameModeRef->GetCurrentGameState() != EGameState::Playing) { return; }
 	if (GetCharacter())
 	{
 		GetCharacter()->Jump();
@@ -83,6 +90,7 @@ void ATerm2PlayerController::RequestJumpStop()
 
 void ATerm2PlayerController::RequestCrouchStart()
 {
+	if (!GameModeRef || GameModeRef->GetCurrentGameState() != EGameState::Playing) { return; }
 	if(!GetCharacter()->GetCharacterMovement()->IsMovingOnGround()) {return;}
 	if (GetCharacter())
 	{
