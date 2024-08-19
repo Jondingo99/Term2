@@ -126,6 +126,11 @@ void AThrowableActor::ToggleHighlight(bool bIsOn)
 	StaticMeshComponent->SetRenderCustomDepth(bIsOn);
 }
 
+EEffectType AThrowableActor::GetEffectType()
+{
+	return EEffectType();
+}
+
 bool AThrowableActor::SetHomingTarget(AActor* Target)
 {
 	if (Target)

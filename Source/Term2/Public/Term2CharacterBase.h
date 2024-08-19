@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "InteractInterface.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "ThrowableActor.h"
@@ -22,7 +23,7 @@ enum class ECharacterThrowState : uint8
 };
 
 UCLASS()
-class TERM2_API ATerm2CharacterBase : public ACharacter
+class TERM2_API ATerm2CharacterBase : public ACharacter, public IInteractInterface
 {
 	GENERATED_BODY()
 
@@ -45,6 +46,8 @@ public:
 	void RequestPullObject();
 	void RequestStopPullObject();
 	void ResetThrowableObject();
+
+	void RequestUseObject();
 
 	void OnThrowableAttached(AThrowableActor* InThrowableActor);
 
@@ -131,5 +134,16 @@ protected:
 private:
 	AThrowableActor* ThrowableActor;
 
+	void ApplyEffect_Implementation(EEffectType EffectType, bool bIsBuff) override;
+
+	void EndEffect();
+
+	bool bIsUnderEffect = false;
+	bool bIsEffectBuff = false;
+
+	float DefaultEffectCooldown = 5.0f;
+	float EffectCooldown = 0.0f;
+
+	EEffectType CurrentEffect = EEffectType::None;
 	
 };

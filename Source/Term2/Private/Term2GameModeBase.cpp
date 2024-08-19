@@ -37,7 +37,11 @@ void ATerm2GameModeBase::PlayerReachedEnd()
 
 void ATerm2GameModeBase::DisplayCountdown()
 {
-	if (!GameWidgetClass) { return; }
+	if (!GameWidgetClass)
+	{
+		
+		return;
+	}
 
 	PC = UGameplayStatics::GetPlayerController(GetWorld(), 0);
 	GameWidget = CreateWidget<UTerm2GameWidget>(PC, GameWidgetClass);
