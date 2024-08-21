@@ -143,7 +143,14 @@ void ATerm2PlayerController::RequestThrowObject(float AxisValue)
 			const bool IsFlick = fabs(currentDelta) > FlickThreshold;
 			if (IsFlick)
 			{
-				Term2CharacterBase->RequestThrowObject();
+				if (AxisValue > 0)
+				{
+					Term2CharacterBase->RequestThrowObject();
+				}
+				else
+				{
+					Term2CharacterBase->RequestUseObject();
+				}
 			}
 		}
 		else

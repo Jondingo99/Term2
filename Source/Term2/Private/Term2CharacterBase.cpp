@@ -311,11 +311,14 @@ void ATerm2CharacterBase::ApplyEffect_Implementation(EEffectType EffectType, boo
 
 	switch (CurrentEffect)
 	{
-	case EEffectType::Speed:
-		bIsEffectBuff ? SprintSpeed *= 2 : GetCharacterMovement()->DisableMovement();
-		break;
-	default:
-		break;
+		case EEffectType::Speed:
+			bIsEffectBuff ? SprintSpeed *= 2 : GetCharacterMovement()->DisableMovement();
+			break;
+		/*case EEffectType::Jump:
+			bIsEffectBuff ? SprintSpeed *= 2 : GetCharacterMovement()->DisableMovement();
+			break;*/
+		default:
+			break;
 	}
 }
 
