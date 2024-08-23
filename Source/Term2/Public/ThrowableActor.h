@@ -15,8 +15,8 @@ UCLASS()
 class TERM2_API AThrowableActor : public AActor
 {
 	GENERATED_BODY()
-	
-public:	
+
+public:
 	// Sets default values for this actor's properties
 	AThrowableActor();
 
@@ -53,7 +53,7 @@ protected:
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
-	virtual void NotifyHit(class UPrimitiveComponent* MyComp, AActor* Other, class UPrimitiveComponent* OtherComp, bool bSelfMoved, FVector HitLocation, FVector HitNormal, FVector NormalImpulse, const FHitResult& Hit);
+	virtual void NotifyHit(class UPrimitiveComponent* MyComp, AActor* Other, class UPrimitiveComponent* OtherComp, bool bSelfMoved, FVector HitLocation, FVector HitNormal, FVector NormalImpulse, const FHitResult& Hit) override;
 
 	UFUNCTION()
 	void ProjectileStop(const FHitResult& ImpactResult);
@@ -71,7 +71,6 @@ protected:
 	UPROPERTY()
 	AActor* PullActor = nullptr;
 
-	UPROPERTY(EditAnywhere, Category="Effect")
+	UPROPERTY(EditAnywhere, Category = "Effect")
 	EEffectType EffectType = EEffectType::None;
-	
 };
