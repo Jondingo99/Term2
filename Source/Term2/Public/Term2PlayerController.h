@@ -13,58 +13,60 @@ class UUserWidget;
 UCLASS()
 class TERM2_API ATerm2PlayerController : public APlayerController
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 public:
 
-	virtual void BeginPlay() override;
-
+    virtual void BeginPlay() override;
+    //in local mp we need to make sure the controller has received the player in order to correctly set up the hud
+    virtual void ReceivedPlayer() override;
 protected:
 
-	void SetupInputComponent() override;
+    void SetupInputComponent() override;
 
-	void RequestMoveForward(float AxisValue);
-	void RequestMoveRight(float AxisValue);
-	void RequestLookUp(float AxisValue);
-	void RequestLookRight(float AxisValue);
-	void RequestThrowObject(float AxisValue);
+    void RequestMoveForward(float AxisValue);
+    void RequestMoveRight(float AxisValue);
+    void RequestLookUp(float AxisValue);
+    void RequestLookRight(float AxisValue);
+    void RequestThrowObject(float AxisValue);
 
-	void RequestJump();
-	void RequestJumpStop();
+    void RequestPullObject();
+    void RequestStopPullObject();
 
-	void RequestCrouchStart();
-	void RequestCrouchEnd();
+    void RequestJump();
+    void RequestStopJump();
 
-	void RequestSprintStart();
-	void RequestSprintEnd();
+    void RequestCrouchStart();
+    void RequestCrouchEnd();
 
-	void RequestPullObject();
-	void RequestStopPullObject();
+    void RequestSprintStart();
+    void RequestSprintEnd();
 
-	//UPROPERTY(EditAnywhere, Category = "HUD")
-	//TSubclassOf<UUserWidget> HUDClass;
+    UPROPERTY(EditAnywhere, Category = "HUD")
+    TSubclassOf<class UUserWidget> HUDClass;
 
-	//UPROPERTY(EditAnywhere)
-	//UUserWidget* HUDWidget;
+    UPROPERTY()
+    UUserWidget* HUDWidget;
 
-	//Base Look Up
-	UPROPERTY(EditAnywhere, Category = "Look")
-	float BaseLookUpRate = 90.0f;
+    /** Base lookup rate, in deg/sec. Other scaling may affect final lookup rate. */
+    UPROPERTY(EditAnywhere, Category = "Look")
+    float BaseLookUpRate = 90.0f;
 
-	//Base Look Right
-	UPROPERTY(EditAnywhere, Category = "Look")
-	float BaseLookRightRate = 90.0f;
+    /** Base lookright rate, in deg/sec. Other scaling may affect final lookup rate. */
+    UPROPERTY(EditAnywhere, Category = "Look")
+    float BaseLookRightRate = 90.0f;
 
-	//UPROPERTY(EditAnywhere, Category = "Movement")
-	//float SprintSpeed = 1200.0f;
+    /**Sound Cue for Jumping Sound. */
 
-	UPROPERTY(EditAnywhere, Category = "Sound")
-	USoundCue* JumpSound = nullptr;
+    UPROPERTY(EditAnywhere, Category = "Sound")
+    USoundCue* JumpSound = nullptr;
 
-	ATerm2GameModeBase* GameModeRef;
+    ATerm2GameModeBase* GameModeRef;
 
-	float LastAxis = 0.0f;
+    //used to determine flick of axis
+    //float LastDelta = 0.0f;
+    float LastAxis = 0.0f;
 
-	UPROPERTY(EditAnywhere, Category = "Input")
-	float FlickThreshold = 0.75f;
-	
+    UPROPERTY(EditAnywhere, Category = "Input")
+    float FlickThreshold = 0.70f;
+
 };

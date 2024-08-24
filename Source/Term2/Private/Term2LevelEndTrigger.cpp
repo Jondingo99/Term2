@@ -4,6 +4,7 @@
 #include "Term2LevelEndTrigger.h"
 #include "Term2CharacterBase.h"
 #include "Term2GameModeBase.h"
+#include "Term2PlayerController.h"
 
 ATerm2LevelEndTrigger::ATerm2LevelEndTrigger()
 {
@@ -18,9 +19,10 @@ void ATerm2LevelEndTrigger::BeginPlay()
 
 void ATerm2LevelEndTrigger::OnOverlapBegin(AActor* OverlappedActor, AActor* OtherActor)
 {
-	if (OtherActor == Cast<ATerm2CharacterBase>(OtherActor))
+	if (ATerm2CharacterBase* Term2CharacterBase = Cast<ATerm2CharacterBase>(OtherActor))
 	{
-		GameModeRef->PlayerReachedEnd();
+		APlayerController* PlayerController = Term2CharacterBase->GetController<APlayerController>();
+		GameModeRef->PlayerReachedEnd(PlayerController);
 	}
 }
 

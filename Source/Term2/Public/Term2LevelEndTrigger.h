@@ -8,10 +8,7 @@
 
 class ATerm2GameModeBase;
 
-/**
- * 
- */
-UCLASS()
+UCLASS(Blueprintable, BlueprintType)
 class TERM2_API ATerm2LevelEndTrigger : public ATriggerVolume
 {
 	GENERATED_BODY()
@@ -26,13 +23,10 @@ protected:
 
 private:
 
-	//Custom Overlap function to ovveride actor
+	// Custom Overlap function to override the Actor BeginOverlap version. 
 	UFUNCTION()
 	void OnOverlapBegin(class AActor* OverlappedActor, class AActor* OtherActor);
 
 	ATerm2GameModeBase* GameModeRef;
-	
-	
-	
-	
+
 };
