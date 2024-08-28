@@ -3,13 +3,11 @@
 
 #include "Term2CharacterBase.h"
 
-#include "Math/UnrealMathUtility.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Term2PlayerController.h"
-#include "Net/UnrealNetwork.h"
 #include "ThrowableActor.h"
-
+#include "Net/UnrealNetwork.h"
 #include "DrawDebugHelpers.h"
 
 constexpr int CVSphereCastPlayerView = 0;

@@ -14,15 +14,17 @@ ATerm2GameModeBase::ATerm2GameModeBase()
 void ATerm2GameModeBase::BeginPlay()
 {
 	Super::BeginPlay();
-	CurrentGameState = EGameState::Waiting;
+	CurrentGameState = EGameModeState::Waiting;
+	//DisplayCountdown(); // For testing purposes
 }
 
 void ATerm2GameModeBase::ReceivePlayer(APlayerController* PlayerController)
 {
+	UE_LOG(LogTemp, Display, TEXT("ATerm2GameModeBase::ReceivePlayer(APlayerController* PlayerController)"));
 	AttemptStartGame();
 }
 
-EGameState ATerm2GameModeBase::GetCurrentGameState() const
+EGameModeState ATerm2GameModeBase::GetCurrentGameState() const
 {
 	return CurrentGameState;
 }
@@ -30,7 +32,7 @@ EGameState ATerm2GameModeBase::GetCurrentGameState() const
 void ATerm2GameModeBase::PlayerReachedEnd(APlayerController* PlayerController)
 {
 	//one gamemode base is shared between players in local mp
-	CurrentGameState = EGameState::GameOver;
+	CurrentGameState = EGameModeState::GameOver;
 	UTerm2GameWidget** GameWidget = GameWidgets.Find(PlayerController);
 	if (GameWidget)
 	{
@@ -47,8 +49,8 @@ void ATerm2GameModeBase::PlayerReachedEnd(APlayerController* PlayerController)
 
 void ATerm2GameModeBase::AttemptStartGame()
 {
-	if (GetNumPlayers() == NumExpectedPlayers)
-	{
+	//if (GetNumPlayers() == NumExpectedPlayers)
+	//{
 		DisplayCountdown();
 		if (GameCountdownDuration > SMALL_NUMBER)
 		{
@@ -59,11 +61,13 @@ void ATerm2GameModeBase::AttemptStartGame()
 			StartGame();
 		}
 
-	}
+	//}
 }
 
 void ATerm2GameModeBase::DisplayCountdown()
 {
+	UE_LOG(LogTemp, Display, TEXT("ATerm2GameModeBase::DisplayCountdown()"));
+
 	if (!GameWidgetClass)
 	{
 		return;
@@ -71,9 +75,11 @@ void ATerm2GameModeBase::DisplayCountdown()
 
 	for (FConstPlayerControllerIterator Iterator = GetWorld()->GetPlayerControllerIterator(); Iterator; ++Iterator)
 	{
+		UE_LOG(LogTemp, Display, TEXT("ATerm2GameModeBase::DisplayCountdown(): we are in our for loop"));
 		APlayerController* PlayerController = Iterator->Get();
-		if (PlayerController && PlayerController->PlayerState && !MustSpectate(PlayerController))
+		if (PlayerController)// && PlayerController->PlayerState && !MustSpectate(PlayerController))
 		{
+			UE_LOG(LogTemp, Display, TEXT("ATerm2GameModeBase::DisplayCountdown(): we have playerstate and are not spectating?"));
 			if (UTerm2GameWidget* GameWidget = CreateWidget<UTerm2GameWidget>(PlayerController, GameWidgetClass))
 			{
 				//GameWidget->AddToViewport();
@@ -87,7 +93,7 @@ void ATerm2GameModeBase::DisplayCountdown()
 
 void ATerm2GameModeBase::StartGame()
 {
-	CurrentGameState = EGameState::Playing;
+	CurrentGameState = EGameModeState::Playing;
 	for (FConstPlayerControllerIterator Iterator = GetWorld()->GetPlayerControllerIterator(); Iterator; ++Iterator)
 	{
 		APlayerController* PlayerController = Iterator->Get();

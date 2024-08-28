@@ -4,6 +4,7 @@
 #include "Term2LevelEndTrigger.h"
 #include "Term2CharacterBase.h"
 #include "Term2GameModeBase.h"
+#include "Term2GameStateBase.h"
 #include "Term2PlayerController.h"
 
 ATerm2LevelEndTrigger::ATerm2LevelEndTrigger()
@@ -14,15 +15,17 @@ ATerm2LevelEndTrigger::ATerm2LevelEndTrigger()
 void ATerm2LevelEndTrigger::BeginPlay()
 {
 	Super::BeginPlay();
-	GameModeRef = GetWorld()->GetAuthGameMode<ATerm2GameModeBase>();
 }
 
 void ATerm2LevelEndTrigger::OnOverlapBegin(AActor* OverlappedActor, AActor* OtherActor)
 {
-	if (ATerm2CharacterBase* Term2CharacterBase = Cast<ATerm2CharacterBase>(OtherActor))
+	if (HasAuthority())
 	{
-		APlayerController* PlayerController = Term2CharacterBase->GetController<APlayerController>();
-		GameModeRef->PlayerReachedEnd(PlayerController);
+		if (ATerm2GameStateBase* Term2GameState = GetWorld()->GetGameState<ATerm2GameStateBase>())
+		{
+			ATerm2CharacterBase* Term2CharacterBase = Cast<ATerm2CharacterBase>(OtherActor);
+			Term2GameState->OnPlayerReachedEnd(Term2CharacterBase);
+		}
 	}
 }
 

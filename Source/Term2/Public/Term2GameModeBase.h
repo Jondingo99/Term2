@@ -10,7 +10,7 @@
 
 // Enum to track the current state of the game 
 UENUM(BlueprintType)
-enum class EGameState : uint8
+enum class EGameModeState : uint8
 {
 	None		UMETA(DisplayName = "None"),
 	Waiting		UMETA(DisplayName = "Waiting"),
@@ -35,7 +35,7 @@ public:
 	virtual void RestartPlayer(AController* NewPlayer) override;
 
 	UFUNCTION(BlueprintCallable)
-	EGameState GetCurrentGameState() const;
+	EGameModeState GetCurrentGameState() const;
 	void PlayerReachedEnd(APlayerController* PlayerController);
 
 	void ReceivePlayer(APlayerController* PlayerController);
@@ -46,7 +46,7 @@ private:
 
 	// Create and set CurrentGameState to NONE. This will be tracked in the code file. 
 	UPROPERTY(VisibleAnywhere, Category = "States")
-	EGameState CurrentGameState = EGameState::None;
+	EGameModeState CurrentGameState = EGameModeState::None;
 	// Countdown before gameplay state begins. Exposed so we can easily change this in BP editor. 
 	UPROPERTY(EditAnywhere, Category = "Game Details")
 	float GameCountdownDuration = 4.0f;
