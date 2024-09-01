@@ -8,6 +8,8 @@
 #include "Term2PlayerController.generated.h"
 
 class ATerm2GameModeBase;
+class ATerm2GameStateBase;
+class ATerm2CharacterBase;
 class UUserWidget;
 
 UCLASS()
@@ -19,9 +21,26 @@ public:
     virtual void BeginPlay() override;
     //in local mp we need to make sure the controller has received the player in order to correctly set up the hud
     virtual void ReceivedPlayer() override;
+
+    virtual void OnPossess(APawn* aPawn) override;
+    virtual void OnUnPossess() override;
+
+    /*UFUNCTION(Client, Reliable)
+    void ClientDisplayCountdown(float GameCountdownDuration);*/
+
+    /*UFUNCTION(Client, Reliable)
+    void ClientRestartGame();*/
+
+    /*UFUNCTION(Client, Reliable)
+    void ClientReachedEnd();*/
+
+    /*UFUNCTION(Server, Reliable)
+    void ServerRestartLevel();*/
 protected:
 
     void SetupInputComponent() override;
+
+    //bool CanProcessRequest() const;
 
     void RequestMoveForward(float AxisValue);
     void RequestMoveRight(float AxisValue);
@@ -60,7 +79,8 @@ protected:
     UPROPERTY(EditAnywhere, Category = "Sound")
     USoundCue* JumpSound = nullptr;
 
-    ATerm2GameModeBase* GameModeRef;
+    UPROPERTY()
+    ATerm2GameStateBase* TantrumnGameState;
 
     //used to determine flick of axis
     //float LastDelta = 0.0f;

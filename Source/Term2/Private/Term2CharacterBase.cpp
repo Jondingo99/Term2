@@ -9,6 +9,9 @@
 #include "ThrowableActor.h"
 #include "Net/UnrealNetwork.h"
 #include "DrawDebugHelpers.h"
+#include "Term2GameInstance.h"
+#include "Term2PlayerState.h"
+
 
 constexpr int CVSphereCastPlayerView = 0;
 constexpr int CVSphereCastActorTransform = 1;
@@ -677,3 +680,31 @@ void ATerm2CharacterBase::EndEffect()
 		break;
 	}
 }
+
+//bool ATerm2CharacterBase::PlayCelebrateMontage()
+//{
+//	/*const float PlayRate = 1.0f;
+//	bool bPlayedSuccessfully = PlayAnimMontage(CelebrateMontage, PlayRate) > 0.f;
+//	if (bPlayedSuccessfully)
+//	{
+//		UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+//
+//		if (!MontageEndedDelegate.IsBound())
+//		{
+//			MontageEndedDelegate.BindUObject(this, &ATerm2CharacterBase::OnMontageEnded);
+//		}
+//		AnimInstance->Montage_SetEndDelegate(MontageEndedDelegate, CelebrateMontage);
+//	}
+//
+//	return bPlayedSuccessfully;*/
+//}
+
+//void ATerm2CharacterBase::ServerPlayCelebrateMontage_Implementation()
+//{
+//	MulticastPlayCelebrateMontage();
+//}
+
+//void ATerm2CharacterBase::MulticastPlayCelebrateMontage_Implementation()
+//{
+//	PlayCelebrateMontage();
+//}

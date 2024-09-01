@@ -7,6 +7,9 @@
 #include "Kismet/GameplayStatics.h"
 #include "Term2CharacterBase.h"
 #include "Term2GameModeBase.h"
+//#include "Term2GameInstance.h"
+#include "Term2GameStateBase.h"
+#include "Term2PlayerState.h"
 
 static TAutoConsoleVariable<bool> CVarDisplayLaunchInputDelta(
 	TEXT("Term2.Character.Debug.DisplayLaunchInputDelta"),
@@ -17,28 +20,94 @@ static TAutoConsoleVariable<bool> CVarDisplayLaunchInputDelta(
 void ATerm2PlayerController::BeginPlay()
 {
 	Super::BeginPlay();
-	//GameModeRef = Cast<ATerm2GameModeBase>(GetWorld()->GetAuthGameMode());
-
+	//Term2GameState = GetWorld()->GetGameState<ATerm2GameStateBase>();
+	//ensureMsgf(Term2GameState, TEXT("ATerm2PlayerController::BeginPlay Invalid Term2GameState"));
 }
+//called from gamemode, so only on authority will we get these calls
+void ATerm2PlayerController::OnPossess(APawn* aPawn)
+{
+	Super::OnPossess(aPawn);
+	UE_LOG(LogTemp, Warning, TEXT("OnPossess: %s"), *GetName());
+}
+
+void ATerm2PlayerController::OnUnPossess()
+{
+	Super::OnUnPossess();
+	UE_LOG(LogTemp, Warning, TEXT("OnUnPossess: %s"), *GetName());
+}
+
+//void ATerm2PlayerController::ClientDisplayCountdown_Implementation(float GameCountdownDuration)
+//{
+//	if (UTerm2GameInstance* Term2GameInstance = GetWorld()->GetGameInstance<UTerm2GameInstance>())
+//	{
+//		Term2GameInstance->DisplayCountdown(GameCountdownDuration, this);
+//	}
+//}
+
+//void ATerm2PlayerController::ClientRestartGame_Implementation()
+//{
+//	if (ATerm2PlayerState* Term2PlayerState = GetPlayerState<ATerm2PlayerState>())
+//	{
+//		if (UTerm2GameInstance* Term2GameInstance = GetWorld()->GetGameInstance<UTerm2GameInstance>())
+//		{
+//			Term2GameInstance->RestartGame(this);
+//		}
+//	}
+//}
+
+//void ATerm2PlayerController::ClientReachedEnd_Implementation()
+//{
+//	//this needs to be named better, it's just displaying the end screen
+//	//this will be seperate, as it will come after the montage...
+//	//client gets hud authority needs to replicate the montage
+//
+//	if (ATerm2CharacterBase* Term2CharacterBase = Cast<ATerm2CharacterBase>(GetCharacter()))
+//	{
+//		Term2CharacterBase->ServerPlayCelebrateMontage();
+//		Term2CharacterBase->GetCharacterMovement()->DisableMovement();
+//	}
+//
+//	if (UTerm2GameInstance* Term2GameInstance = GetWorld()->GetGameInstance<UTerm2GameInstance>())
+//	{
+//		//call the level complete event for the widget...
+//	}
+//
+//	FInputModeUIOnly InputMode;
+//	SetInputMode(InputMode);
+//	SetShowMouseCursor(true);
+//}
+
+//void ATerm2PlayerController::ServerRestartLevel_Implementation()
+//{
+//	//GetWorld()->ServerTravel(TEXT("?restart"));
+//	ATerm2GameModeBase* Term2GameMode = GetWorld()->GetAuthGameMode<ATerm2GameModeBase>();
+//	if (ensureMsgf(Term2GameMode, TEXT("ATerm2PlayerController::ServerRestartLevel_Implementation Invalid GameMode")))
+//	{
+//		//Term2GameMode->RestartGame();
+//
+//	}
+//	/*RestartPlayer()
+//	GetWorld()->GetCurrentLevel()->GetName()
+//	GetWorld()->ServerTravel(TEXT("?restart"));*/
+//}
 
 void ATerm2PlayerController::ReceivedPlayer()
 {
 	Super::ReceivedPlayer();
-	GameModeRef = GetWorld()->GetAuthGameMode<ATerm2GameModeBase>();
-	if (ensureMsgf(GameModeRef, TEXT("ATerm2PlayerController::ReceivedPlayer missing GameMode Reference")))
-	{
-		GameModeRef->ReceivePlayer(this);
-	}
 
-	if (HUDClass)
+	if (IsLocalController())
 	{
-		HUDWidget = CreateWidget(this, HUDClass);
-		if (HUDWidget)
+		if (HUDClass)
 		{
-			//HUDWidget->AddToViewport();
-			HUDWidget->AddToPlayerScreen();
+			HUDWidget = CreateWidget(this, HUDClass);
+			if (HUDWidget)
+			{
+				//HUDWidget->AddToViewport();
+				HUDWidget->AddToPlayerScreen();
+			}
 		}
 	}
+
 }
 
 void ATerm2PlayerController::SetupInputComponent()
@@ -66,9 +135,22 @@ void ATerm2PlayerController::SetupInputComponent()
 	}
 }
 
+//bool ATerm2PlayerController::CanProcessRequest() const
+//{
+//	if (Term2GameState && Term2GameState->IsPlaying())
+//	{
+//		if (ATerm2PlayerState* Term2PlayerState = GetPlayerState<ATerm2PlayerState>())
+//		{
+//			return (Term2PlayerState->GetCurrentState() == EPlayerGameState::Playing);
+//		}
+//	}
+//
+//	return false;
+//}
+
 void ATerm2PlayerController::RequestMoveForward(float AxisValue)
 {
-	/*if(!GameModeRef || GameModeRef->GetCurrentGameState() != EGameState::Playing)
+	/*if (!CanProcessRequest())
 	{
 		return;
 	}*/
@@ -83,7 +165,7 @@ void ATerm2PlayerController::RequestMoveForward(float AxisValue)
 
 void ATerm2PlayerController::RequestMoveRight(float AxisValue)
 {
-	/*if(!GameModeRef || GameModeRef->GetCurrentGameState() != EGameState::Playing)
+	/*if (!CanProcessRequest())
 	{
 		return;
 	}*/
@@ -108,6 +190,11 @@ void ATerm2PlayerController::RequestLookRight(float AxisValue)
 
 void ATerm2PlayerController::RequestThrowObject(float AxisValue)
 {
+	/*if (!CanProcessRequest())
+	{
+		return;
+	}*/
+
 	if (ATerm2CharacterBase* Term2CharacterBase = Cast<ATerm2CharacterBase>(GetCharacter()))
 	{
 		if (Term2CharacterBase->CanThrowObject())
@@ -145,6 +232,11 @@ void ATerm2PlayerController::RequestThrowObject(float AxisValue)
 
 void ATerm2PlayerController::RequestPullObject()
 {
+	/*if (!CanProcessRequest())
+	{
+		return;
+	}*/
+
 	if (ATerm2CharacterBase* Term2CharacterBase = Cast<ATerm2CharacterBase>(GetCharacter()))
 	{
 		Term2CharacterBase->RequestPullObject();
@@ -161,19 +253,19 @@ void ATerm2PlayerController::RequestStopPullObject()
 
 void ATerm2PlayerController::RequestJump()
 {
-	//create a function for this
-	//if(!GameModeRef || GameModeRef->GetCurrentGameState() != EGameState::Playing) 
-	//{
-	//	return;
-	//}
-	if (GetCharacter())
+	/*if (!CanProcessRequest())
 	{
-		GetCharacter()->Jump();
+		return;
+	}*/
+
+	if (ATerm2CharacterBase* Term2CharacterBase = Cast<ATerm2CharacterBase>(GetCharacter()))
+	{
+		Term2CharacterBase->Jump();
 
 		//SoundCue Triggers
-		if (JumpSound && GetCharacter()->GetCharacterMovement()->IsMovingOnGround())
+		if (JumpSound && Term2CharacterBase->GetCharacterMovement()->IsMovingOnGround())
 		{
-			FVector CharacterLocation = GetCharacter()->GetActorLocation();
+			FVector CharacterLocation = Term2CharacterBase->GetActorLocation();
 			UGameplayStatics::PlaySoundAtLocation(this, JumpSound, CharacterLocation);
 		}
 	}
@@ -181,40 +273,43 @@ void ATerm2PlayerController::RequestJump()
 
 void ATerm2PlayerController::RequestStopJump()
 {
-	if (GetCharacter())
+	if (ATerm2CharacterBase* Term2CharacterBase = Cast<ATerm2CharacterBase>(GetCharacter()))
 	{
-		GetCharacter()->StopJumping();
+		Term2CharacterBase->StopJumping();
 	}
 }
 
 void ATerm2PlayerController::RequestCrouchStart()
 {
-	/*if(!GameModeRef || GameModeRef->GetCurrentGameState() != EGameState::Playing)
+	/*if (!CanProcessRequest())
 	{
 		return;
 	}*/
 
-	if (!GetCharacter()->GetCharacterMovement()->IsMovingOnGround()) { return; }
-	if (GetCharacter())
+	ATerm2CharacterBase* Term2CharacterBase = Cast<ATerm2CharacterBase>(GetCharacter());
+	if (!Term2CharacterBase || !Term2CharacterBase->GetCharacterMovement()->IsMovingOnGround())
 	{
-		GetCharacter()->Crouch();
+		return;
 	}
+
+	Term2CharacterBase->Crouch();
 }
 
 void ATerm2PlayerController::RequestCrouchEnd()
 {
-	if (GetCharacter())
+	if (ATerm2CharacterBase* Term2CharacterBase = Cast<ATerm2CharacterBase>(GetCharacter()))
 	{
-		GetCharacter()->UnCrouch();
+		Term2CharacterBase->UnCrouch();
 	}
 }
 
 void ATerm2PlayerController::RequestSprintStart()
 {
-	//if(!GameModeRef || GameModeRef->GetCurrentGameState() != EGameState::Playing) 
-	//{
-	//	return;
-	//}
+	/*if (!CanProcessRequest())
+	{
+		return;
+	}*/
+
 	if (ATerm2CharacterBase* Term2CharacterBase = Cast<ATerm2CharacterBase>(GetCharacter()))
 	{
 		Term2CharacterBase->RequestSprintStart();

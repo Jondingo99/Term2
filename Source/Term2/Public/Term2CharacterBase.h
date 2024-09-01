@@ -100,6 +100,11 @@ protected:
 	UFUNCTION(Server, Reliable)
 	void ServerFinishThrow();
 
+	bool PlayCelebrateMontage();
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastPlayCelebrateMontage();
+
 	bool PlayThrowMontage();
 	void UnbindMontage();
 
