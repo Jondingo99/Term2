@@ -69,4 +69,5 @@ private:
 	void AttemptStartGame();
 	void DisplayCountdown();
 	void StartGame();
+	void RestartGame();
 };

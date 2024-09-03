@@ -5,6 +5,11 @@
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Term2GameInstance.h"
+#include "Term2GameStateBase.h"
+#include "Term2PlayerController.h"
+#include "Term2PlayerState.h"
+#include "Term2AIController.h"
 
 ATerm2GameModeBase::ATerm2GameModeBase()
 {
@@ -49,8 +54,13 @@ void ATerm2GameModeBase::PlayerReachedEnd(APlayerController* PlayerController)
 
 void ATerm2GameModeBase::AttemptStartGame()
 {
-	//if (GetNumPlayers() == NumExpectedPlayers)
-	//{
+	if (ATerm2GameStateBase* Term2GameState = GetGameState<ATerm2GameStateBase>())
+	{
+		Term2GameState->SetGameState(EGameState::Waiting);
+	}
+	if (GetNumPlayers() == NumExpectedPlayers)
+	{
+		//this needs to be replicated, call a function on game instance and replicate
 		DisplayCountdown();
 		if (GameCountdownDuration > SMALL_NUMBER)
 		{
@@ -58,10 +68,11 @@ void ATerm2GameModeBase::AttemptStartGame()
 		}
 		else
 		{
+			//this is always called from the authority, aka here
 			StartGame();
 		}
 
-	//}
+	}
 }
 
 void ATerm2GameModeBase::DisplayCountdown()
@@ -119,4 +130,33 @@ void ATerm2GameModeBase::RestartPlayer(AController* NewPlayer)
 	}
 }
 
+void ATerm2GameModeBase::RestartGame()
+{
+	//destroy actor
+	for (FConstControllerIterator Iterator = GetWorld()->GetControllerIterator(); Iterator; ++Iterator)
+	{
+		ATerm2AIController* Term2AIController = Cast<ATerm2AIController>(Iterator->Get());
+		if (Term2AIController && Term2AIController->GetPawn())
+		{
+			Term2AIController->Destroy(true);
 
+		}
+		
+	}
+
+	ResetLevel();
+	//RestartGame();
+	//GetWorld()->ServerTravel(TEXT("?Restart"), false);
+	//ProcessServerTravel("?Restart");
+	for (FConstPlayerControllerIterator Iterator = GetWorld()->GetPlayerControllerIterator(); Iterator; ++Iterator)
+	{
+		APlayerController* PlayerController = Iterator->Get();
+		if (PlayerController && PlayerController->PlayerState && !MustSpectate(PlayerController))
+		{
+			if (ATerm2AIController* Term2AIController = Cast< ATerm2PlayerController>(PlayerController))
+			{
+				Term2PlayerController->ClientRestartGame();
+			}
+			RestartPlayer(PlayerController);
+	}
+}

@@ -7,6 +7,7 @@
 #include "Term2PlayerController.h"
 #include "Term2PlayerState.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Term2AIController.h"
 //only ever called by the authority
 void ATerm2GameStateBase::OnPlayerReachedEnd(ATerm2CharacterBase* Term2Character)
 {
@@ -36,6 +37,12 @@ void ATerm2GameStateBase::OnPlayerReachedEnd(ATerm2CharacterBase* Term2Character
 		{
 			GameState = EGameState::GameOver;
 		}
+	}
+	else if (ATerm2AIController* Term2AIController = Term2Character->GetController<ATerm2AIController>())
+	{
+		ATerm2PlayerState* PlayerState = Term2AIController->GetPlayerState<ATerm2PlayerState>();
+		//UpdateResults(PlayerState, Term2Character);
+		Term2AIController->OnReachedEnd();
 	}
 }
 

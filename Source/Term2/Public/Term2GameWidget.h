@@ -16,11 +16,18 @@ class TERM2_API UTerm2GameWidget : public UUserWidget
 
 public:
 
-	UFUNCTION(BluePrintImplementableEvent)
-	void StartCountdown(float CountdownTime, class ATerm2GameModeBase* GameMode);
+	GENERATED_BODY()
+
+public:
+	UFUNCTION(BlueprintImplementableEvent)
+	void StartCountdown(float CountdownTime, class ATerm2PlayerController* Term2PlayerController);
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void LevelComplete();
-	
-	
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void DisplayResults();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void RemoveResults();
 };
