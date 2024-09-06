@@ -41,7 +41,7 @@ void ATerm2GameModeBase::PlayerReachedEnd(APlayerController* PlayerController)
 	UTerm2GameWidget** GameWidget = GameWidgets.Find(PlayerController);
 	if (GameWidget)
 	{
-		(*GameWidget)->LevelComplete();
+		//(*GameWidget)->LevelComplete();
 		FInputModeUIOnly InputMode;
 		PlayerController->SetInputMode(InputMode);
 		PlayerController->SetShowMouseCursor(true);
@@ -95,7 +95,7 @@ void ATerm2GameModeBase::DisplayCountdown()
 			{
 				//GameWidget->AddToViewport();
 				GameWidget->AddToPlayerScreen();
-				GameWidget->StartCountdown(GameCountdownDuration, this);
+				//GameWidget->StartCountdown(GameCountdownDuration, this);
 				GameWidgets.Add(PlayerController, GameWidget);
 			}
 		}
@@ -141,7 +141,7 @@ void ATerm2GameModeBase::RestartGame()
 			Term2AIController->Destroy(true);
 
 		}
-		
+
 	}
 
 	ResetLevel();
@@ -153,10 +153,11 @@ void ATerm2GameModeBase::RestartGame()
 		APlayerController* PlayerController = Iterator->Get();
 		if (PlayerController && PlayerController->PlayerState && !MustSpectate(PlayerController))
 		{
-			if (ATerm2AIController* Term2AIController = Cast< ATerm2PlayerController>(PlayerController))
+			if (ATerm2PlayerController* Term2PlayerController = Cast<ATerm2PlayerController>(PlayerController))
 			{
-				Term2PlayerController->ClientRestartGame();
+				//Term2PlayerController->ClientRestartGame();
 			}
 			RestartPlayer(PlayerController);
+		}
 	}
 }

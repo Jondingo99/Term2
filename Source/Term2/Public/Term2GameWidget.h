@@ -15,19 +15,15 @@ class TERM2_API UTerm2GameWidget : public UUserWidget
 	GENERATED_BODY()
 
 public:
+	//UFUNCTION(BlueprintImplementableEvent)
+	//void StartCountdown(float CountdownTime, class ATerm2GameModeBase* Term2GameModeBase);
 
-	GENERATED_BODY()
+	//UFUNCTION(BlueprintImplementableEvent)
+	//void LevelComplete();
 
-public:
-	UFUNCTION(BlueprintImplementableEvent)
-	void StartCountdown(float CountdownTime, class ATerm2PlayerController* Term2PlayerController);
+	//UFUNCTION(BlueprintImplementableEvent)
+	//void DisplayResults();
 
-	UFUNCTION(BlueprintImplementableEvent)
-	void LevelComplete();
-
-	UFUNCTION(BlueprintImplementableEvent)
-	void DisplayResults();
-
-	UFUNCTION(BlueprintImplementableEvent)
-	void RemoveResults();
+	//UFUNCTION(BlueprintImplementableEvent)
+	//void RemoveResults();
 };
