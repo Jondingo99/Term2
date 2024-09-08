@@ -66,6 +66,10 @@ public:
 	UFUNCTION(BlueprintPure)
 	bool IsStunned() const { return bIsStunned; }
 
+	//used mainly by AI
+	UFUNCTION(BlueprintCallable)
+	bool AttemptPullObjectAtLocation(const FVector& InLocation);
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

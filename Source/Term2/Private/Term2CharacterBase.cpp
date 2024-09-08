@@ -269,6 +269,33 @@ void ATerm2CharacterBase::RequestPullObject()
 	}
 }
 
+bool ATerm2CharacterBase::AttemptPullObjectAtLocation(const FVector& InLocation)
+{
+	if (CharacterThrowState != ECharacterThrowState::None && CharacterThrowState != ECharacterThrowState::RequestingPull)
+	{
+		return false;
+	}
+
+	FVector StartPos = GetActorLocation();
+	FVector EndPos = InLocation;
+	FHitResult HitResult;
+	GetWorld() ? GetWorld()->LineTraceSingleByChannel(HitResult, StartPos, EndPos, ECollisionChannel::ECC_Visibility) : false;
+#if ENABLE_DRAW_DEBUG
+	if (CVarDisplayTrace->GetBool())
+	{
+		DrawDebugLine(GetWorld(), StartPos, EndPos, HitResult.bBlockingHit ? FColor::Red : FColor::White, false);
+	}
+#endif
+	CharacterThrowState = ECharacterThrowState::RequestingPull;
+	ProcessTraceResult(HitResult);
+	if (CharacterThrowState == ECharacterThrowState::Pulling)
+	{
+		return true;
+	}
+	CharacterThrowState = ECharacterThrowState::None;
+	return false;
+}
+
 void ATerm2CharacterBase::RequestStopPullObject()
 {
 	//if was pulling an object, drop it
