@@ -52,6 +52,7 @@ public:
 	void RequestStopAim();
 	void ResetThrowableObject();
 
+
 	void RequestUseObject();
 
 	void OnThrowableAttached(AThrowableActor* InThrowableActor);

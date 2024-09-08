@@ -39,6 +39,8 @@ static TAutoConsoleVariable<bool> CVarDisplayThrowVelocity(
 	TEXT("Display Throw Velocity"),
 	ECVF_Default);
 
+DEFINE_LOG_CATEGORY_STATIC(LogTerm2Char, Verbose, Verbose)
+
 //need a debug to display the launch vector
 //make sure collisions are disabled...
 
@@ -368,6 +370,9 @@ void ATerm2CharacterBase::ServerBeginThrow_Implementation()
 		const FVector& Start = GetMesh()->GetSocketLocation(TEXT("ObjectAttach"));
 		DrawDebugLine(GetWorld(), Start, Start + Direction, FColor::Red, false, 5.0f);
 	}
+
+	const FVector& Start = GetMesh()->GetSocketLocation(TEXT("ObjectAttach"));
+	UE_VLOG_ARROW(this, LogTerm2Char, Verbose, Start, Start + Direction, FColor::Red, TEXT("Throw Direction"));
 }
 
 void ATerm2CharacterBase::ServerFinishThrow_Implementation()
@@ -638,6 +643,31 @@ void ATerm2CharacterBase::OnStunEnd()
 {
 	StunBeginTimestamp = 0.0f;
 	StunTime = 0.0f;
+}
+
+void ATerm2CharacterBase::NotifyHitByThrowable(AThrowableActor* InThrowable)
+{
+	OnStunBegin(1.0f);
+}
+
+void ATerm2CharacterBase::OnStunBegin(float StunRatio)
+{
+	if (bIsStunned)
+	{
+		//for now just early exit
+		return;
+	}
+
+	const float StunDelt = MaxStunTime - MinStunTime;
+	StunTime = MinStunTime + (StunRatio * StunDelt);
+	CurrentStunTimer = 0.0f;
+	//StunBeginTimestamp = FApp::GetCurrentTime();
+	bIsStunned = true;
+	if (bIsSprinting)
+	{
+		RequestSprintEnd();
+	}
+	ResetThrowableObject();
 }
 
 void ATerm2CharacterBase::UpdateRescue(float DeltaTime)

@@ -58,6 +58,15 @@ void AThrowableActor::NotifyHit(UPrimitiveComponent* MyComp, AActor* Other, UPri
 		{
 			I->Execute_ApplyEffect(Other, EffectType, false);
 		}
+
+		AActor* CurrentOwner = GetOwner();
+		if (CurrentOwner && CurrentOwner != Other)
+		{
+			if (ATerm2CharacterBase* Term2CharacterBase = Cast<ATerm2CharacterBase>(Other))
+			{
+				Term2CharacterBase->NotifyHitByThrowable(this);
+			}
+		}
 	}
 
 	//ignore all other hits
