@@ -266,6 +266,25 @@ void ATerm2CharacterBase::RequestPullObject()
 	{
 		CharacterThrowState = ECharacterThrowState::RequestingPull;
 		ServerRequestPullObject(true);
+
+	}
+}
+
+void ATerm2CharacterBase::RequestAim()
+{
+	if (!bIsStunned && CharacterThrowState == ECharacterThrowState::Attached)
+	{
+		CharacterThrowState = ECharacterThrowState::Aiming;
+		//ServerRequestToggleAim(true);
+	}
+}
+
+void ATerm2CharacterBase::RequestStopAim()
+{
+	if (CharacterThrowState == ECharacterThrowState::Aiming)
+	{
+		CharacterThrowState = ECharacterThrowState::Attached;
+		//ServerRequestToggleAim(false);
 	}
 }
 

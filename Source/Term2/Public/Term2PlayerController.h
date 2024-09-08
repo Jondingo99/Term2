@@ -48,8 +48,8 @@ protected:
     void RequestLookRight(float AxisValue);
     void RequestThrowObject(float AxisValue);
 
-    void RequestPullObject();
-    void RequestStopPullObject();
+    void RequestPullorAimObject();
+    void RequestStopPullorAimObject();
 
     void RequestJump();
     void RequestStopJump();

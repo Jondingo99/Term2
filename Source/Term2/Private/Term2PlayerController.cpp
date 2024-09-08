@@ -123,8 +123,8 @@ void ATerm2PlayerController::SetupInputComponent()
 		InputComponent->BindAction(TEXT("Sprint"), EInputEvent::IE_Pressed, this, &ATerm2PlayerController::RequestSprintStart);
 		InputComponent->BindAction(TEXT("Sprint"), EInputEvent::IE_Released, this, &ATerm2PlayerController::RequestSprintEnd);
 
-		InputComponent->BindAction(TEXT("PullObject"), EInputEvent::IE_Pressed, this, &ATerm2PlayerController::RequestPullObject);
-		InputComponent->BindAction(TEXT("PullObject"), EInputEvent::IE_Released, this, &ATerm2PlayerController::RequestStopPullObject);
+		InputComponent->BindAction(TEXT("PullorAimObject"), EInputEvent::IE_Pressed, this, &ATerm2PlayerController::RequestPullorAimObject);
+		InputComponent->BindAction(TEXT("PullorAimObject"), EInputEvent::IE_Released, this, &ATerm2PlayerController::RequestStopPullorAimObject);
 
 		InputComponent->BindAxis(TEXT("MoveForward"), this, &ATerm2PlayerController::RequestMoveForward);
 		InputComponent->BindAxis(TEXT("MoveRight"), this, &ATerm2PlayerController::RequestMoveRight);
@@ -230,7 +230,7 @@ void ATerm2PlayerController::RequestThrowObject(float AxisValue)
 	}
 }
 
-void ATerm2PlayerController::RequestPullObject()
+void ATerm2PlayerController::RequestPullorAimObject()
 {
 	/*if (!CanProcessRequest())
 	{
@@ -239,11 +239,18 @@ void ATerm2PlayerController::RequestPullObject()
 
 	if (ATerm2CharacterBase* Term2CharacterBase = Cast<ATerm2CharacterBase>(GetCharacter()))
 	{
-		Term2CharacterBase->RequestPullObject();
+		if (Term2CharacterBase->CanAim())
+		{
+			Term2CharacterBase->RequestAim();
+		}
+		else
+		{
+			Term2CharacterBase->RequestPullObject();
+		}
 	}
 }
 
-void ATerm2PlayerController::RequestStopPullObject()
+void ATerm2PlayerController::RequestStopPullorAimObject()
 {
 	if (ATerm2CharacterBase* Term2CharacterBase = Cast<ATerm2CharacterBase>(GetCharacter()))
 	{
