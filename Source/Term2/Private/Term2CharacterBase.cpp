@@ -608,25 +608,6 @@ void ATerm2CharacterBase::OnNotifyEndReceived(FName NotifyName, const FBranching
 
 }
 
-void ATerm2CharacterBase::OnStunBegin(float StunRatio)
-{
-	if (bIsStunned)
-	{
-		//for now just early exit, alternative option would be to add to the stun time
-		return;
-	}
-
-	const float StunDelt = MaxStunTime - MinStunTime;
-	StunTime = MinStunTime + (StunRatio * StunDelt);
-	StunBeginTimestamp = FApp::GetCurrentTime();
-	bIsStunned = true;
-	if (bIsSprinting)
-	{
-		RequestSprintEnd();
-	}
-	GetMesh();
-}
-
 void ATerm2CharacterBase::UpdateStun()
 {
 	if (bIsStunned)
@@ -645,10 +626,10 @@ void ATerm2CharacterBase::OnStunEnd()
 	StunTime = 0.0f;
 }
 
-void ATerm2CharacterBase::NotifyHitByThrowable(AThrowableActor* InThrowable)
-{
-	OnStunBegin(1.0f);
-}
+//void ATerm2CharacterBase::NotifyHitByThrowable(AThrowableActor* InThrowable)
+//{
+//	OnStunBegin(1.0f);
+//}
 
 void ATerm2CharacterBase::OnStunBegin(float StunRatio)
 {
@@ -660,7 +641,7 @@ void ATerm2CharacterBase::OnStunBegin(float StunRatio)
 
 	const float StunDelt = MaxStunTime - MinStunTime;
 	StunTime = MinStunTime + (StunRatio * StunDelt);
-	CurrentStunTimer = 0.0f;
+//	CurrentStunTimer = 0.0f;
 	//StunBeginTimestamp = FApp::GetCurrentTime();
 	bIsStunned = true;
 	if (bIsSprinting)

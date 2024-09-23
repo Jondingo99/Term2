@@ -64,7 +64,7 @@ void AThrowableActor::NotifyHit(UPrimitiveComponent* MyComp, AActor* Other, UPri
 		{
 			if (ATerm2CharacterBase* Term2CharacterBase = Cast<ATerm2CharacterBase>(Other))
 			{
-				Term2CharacterBase->NotifyHitByThrowable(this);
+				//Term2CharacterBase->NotifyHitByThrowable(this);
 			}
 		}
 	}

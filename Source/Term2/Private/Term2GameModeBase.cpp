@@ -58,8 +58,8 @@ void ATerm2GameModeBase::AttemptStartGame()
 	{
 		Term2GameState->SetGameState(EGameState::Waiting);
 	}
-	if (GetNumPlayers() == NumExpectedPlayers)
-	{
+	//if (GetNumPlayers() == NumExpectedPlayers)
+	//{
 		//this needs to be replicated, call a function on game instance and replicate
 		DisplayCountdown();
 		if (GameCountdownDuration > SMALL_NUMBER)
@@ -72,7 +72,7 @@ void ATerm2GameModeBase::AttemptStartGame()
 			StartGame();
 		}
 
-	}
+	//}
 }
 
 void ATerm2GameModeBase::DisplayCountdown()
@@ -93,6 +93,7 @@ void ATerm2GameModeBase::DisplayCountdown()
 			UE_LOG(LogTemp, Display, TEXT("ATerm2GameModeBase::DisplayCountdown(): we have playerstate and are not spectating?"));
 			if (UTerm2GameWidget* GameWidget = CreateWidget<UTerm2GameWidget>(PlayerController, GameWidgetClass))
 			{
+				UE_LOG(LogTemp, Display, TEXT("ATerm2GameModeBase::DisplayCountdown(): we have a widget and we intend to use it!"));
 				//GameWidget->AddToViewport();
 				GameWidget->AddToPlayerScreen();
 				//GameWidget->StartCountdown(GameCountdownDuration, this);

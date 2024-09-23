@@ -38,7 +38,7 @@ public:
 	EGameModeState GetCurrentGameState() const;
 	void PlayerReachedEnd(APlayerController* PlayerController);
 
-	void ReceivePlayer(APlayerController* PlayerController);
+	void ReceivePlayer(APlayerController* PlayerController); // Might need override? (If compile fails, maybe not, if that's the case, look around for ReceivePlayer in final project code)
 
 private:
 
