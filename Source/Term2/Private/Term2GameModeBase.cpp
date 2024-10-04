@@ -20,6 +20,7 @@ void ATerm2GameModeBase::BeginPlay()
 {
 	Super::BeginPlay();
 	CurrentGameState = EGameModeState::Waiting;
+	AttemptStartGame();
 	//DisplayCountdown(); // For testing purposes
 }
 
